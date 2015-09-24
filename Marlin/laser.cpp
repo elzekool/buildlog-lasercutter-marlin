@@ -28,8 +28,9 @@
 laser_t laser;
 
 void timer3_init(int pin) {
+      return;
   pinMode(pin, OUTPUT);
-    analogWrite(pin, 1);  // let Arduino setup do it's thing to the PWM pin
+    analogWrite(pin, 0);  // let Arduino setup do it's thing to the PWM pin
 
     TCCR3B = 0x00;  // stop Timer4 clock for register updates
     TCCR3A = 0x82; // Clear OC3A on match, fast PWM mode, lower WGM3x=14
@@ -46,6 +47,7 @@ void timer3_init(int pin) {
 }
 
 void timer4_init(int pin) {
+    return;
   pinMode(pin, OUTPUT);
     analogWrite(pin, 1);  // let Arduino setup do it's thing to the PWM pin
 
@@ -119,8 +121,11 @@ void laser_fire(int intensity = 100.0){
     if (intensity < 0) intensity = 0;
 
     pinMode(LASER_FIRING_PIN, OUTPUT);
+    digitalWrite(LASER_FIRING_PIN, LOW);    
+    return;
+    
     #if LASER_CONTROL == 1
-    analogWrite(LASER_FIRING_PIN, labs((intensity / 100.0)*(F_CPU / LASER_PWM)));
+      analogWrite(LASER_FIRING_PIN, labs((intensity / 100.0)*(F_CPU / LASER_PWM)));
     #endif
     #if LASER_CONTROL == 2
       analogWrite(LASER_INTENSITY_PIN, labs((intensity / 100.0)*(F_CPU / LASER_PWM)));
@@ -136,7 +141,9 @@ void laser_extinguish(){
     laser.firing = LASER_OFF;
 
     // Engage the pullup resistor for TTL laser controllers which don't turn off entirely without it.
-    digitalWrite(LASER_FIRING_PIN, LOW);
+    digitalWrite(LASER_FIRING_PIN, HIGH);
+    pinMode(LASER_FIRING_PIN, OUTPUT);
+    
     laser.time += millis() - (laser.last_firing / 1000);
 
     if (laser.diagnostics) {
